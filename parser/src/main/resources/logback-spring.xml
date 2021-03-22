@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty name="FILE_NAME" source="logging.file.name"/>
+    <springProperty name="CONSOLE_PATTERN" source="logging.pattern.console"/>
+    <springProperty name="FILE_PATTEN" source="logging.pattern.file"/>
+    <springProperty name="MAX_SIZE" source="logging.logback.rollingpolicy.max-file-size"/>
+    <springProperty name="MAX_HISTORY" source="logging.logback.rollingpolicy.max-history"/>
+
+    <!-- 콘솔 로그 출력 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <Pattern>${CONSOLE_PATTERN}</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logstash JSON 형식으로 파일 로그 생성 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${FILE_NAME}</File>
+        <encoder>
+            <charset>UTF-8</charset>
+            <Pattern>${FILE_PATTEN}</Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${FILE_NAME}_%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${MAX_SIZE}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- INFO 레벨 이하 로그를 콘솔 및 파일로 출력 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

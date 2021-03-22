@@ -1,0 +1,58 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: api
+  profiles:
+    group:
+      local: local-api, local-common, local-domain
+      dev: dev-api, dev-common, dev-domain
+    active: local
+
+# logging
+# log file full path
+logging:
+  file:
+    name: C:\dev\log\logback-api.log
+    #name: /apps/logs/doms/api/logback-api.log
+  logback:
+    rollingpolicy:
+      max-file-size: 500MB
+      max-history: 30
+  # log level: default
+  level:
+    root: INFO
+    # log level: package
+    multiproject.api: DEBUG
+    multiproject.common: DEBUG
+    multiproject.domain: DEBUG
+    # spring
+    org.springframework.web: ERROR
+  # log formatter
+  pattern:
+    console: "%-5level %date{yyyy-MM-dd HH:mm:ss.SSSZ,Asia/Seoul} %thread [%logger{36}.%M:%line] %msg%n"
+    file: "%-5level %date{yyyy-MM-dd HH:mm:ss.SSSZ,Asia/Seoul} %thread [%logger{36}.%M:%line] %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local-api
+
+active:
+  api:
+    profile:
+      name: this is local setting api
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev-api
+
+active:
+  api:
+    profile:
+      name: this is dev setting api

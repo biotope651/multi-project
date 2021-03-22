@@ -1,0 +1,163 @@
+/**
+ * 프로젝트 빌드 단계에서 사용할 설정으로
+ * gradle로 빌드하는 과정에서 필요한 외부 라이브러리를
+ * 클래스패스에 추가한다.
+ * 포함되어 있는 모든 모듈에 공통되는 Gradle 레포지토리와 종속성을
+ * 정의할 수 있다.
+ * repositories, plugin 등 설정
+ * 소스 컴파일과는 다르다!!
+ */
+buildscript {
+    ext {
+        version_springboot='2.4.4'
+        version_dependencyManagement='1.0.11.RELEASE'
+    }
+    /**
+     * 빌드 시 의존성 라이브러리를 찾을 저장소
+     */
+    repositories {
+        mavenCentral()
+    }
+    /**
+     * 의존성 설정
+     */
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${version_springboot}")
+        classpath "io.spring.gradle:dependency-management-plugin:${version_dependencyManagement}"
+    }
+}
+
+/**
+ * 소스 컴파일 단계에서 사용할 설정
+ * 언어설정, 플러그인 설정, 그룹설정, 변수 설정
+ */
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group 'multiproject'
+    version '0.0.1-SNAPSHOT'
+
+    /**
+     * 추가 프로젝트 변수설정
+     */
+    ext {
+        version_project = "${version}"
+        version_java = '1.8'
+        version_junit = '5.2.0'
+        version_jetty = '1.5.7.RELEASE'
+        project_build_sourceEncoding = 'UTF-8'
+    }
+
+    /**
+     * .java 의 java 언어 레벨(버전)
+     */
+    sourceCompatibility = "${version_java}"
+    /**
+     * .class 의 java 언어 레벨(버전)
+     */
+    targetCompatibility = "${version_java}"
+
+    compileJava.options.encoding = "${project_build_sourceEncoding}"
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations {
+        /**
+         * 컴파일 단계에서 annotaion을 스캔하고 처리함.
+         */
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+        /**
+         * tomcat 제외 설정
+         */
+        compile.exclude module: "spring-boot-starter-tomcat"
+    }
+
+    /**
+     * 모든 하위 모듈에서 사용하는 의존성을 관리한다.
+     */
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jetty', version: "${version_jetty}"
+        compileOnly 'org.projectlombok:lombok'
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude module: 'junit'
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    /**
+     * 실행 가능한 jar 파일로 설정
+     * 보통 java -jar ~ 로 실행하지만,
+     * Springboot에서 지원하는 실행 가능한 jar파일이 만들어지도록
+     * 설정할 수 있다.
+     */
+    bootJar {
+        launchScript()
+    }
+}
+
+/**
+ * application layer
+ * 독립적으로 실행 가능한 어플리케이션 모듈 계층
+ * 하위 설계했던 모듈들을 조립하여 실행한다.
+ */
+project(':api') {
+    dependencies {
+        compile project(':common')
+        compile project(':domain')
+    }
+}
+
+project(':parser') {
+    dependencies {
+        compile project(':common')
+    }
+}
+
+/**
+ * 공통 모듈 layer
+ * 유틸, 공통 처리 모듈
+ * 예시)
+ * 파일 업로드, 다운로드
+ * 날짜,시간 유틸
+ * 공통 에러 코드, 처리 유틸
+ */
+project(':common') {
+    bootJar {
+        enabled = false
+    }
+    jar {
+        enabled = true
+    }
+}
+
+/**
+ * domain layer
+ * 예시)
+ * 비즈니스 로직 수행
+ * 엔티티, 레포지토리, 서비스 등
+ */
+project(':domain') {
+    dependencies {
+        compile project(':common')
+    }
+
+    bootJar {
+        enabled = false
+    }
+    jar {
+        enabled = true
+    }
+}

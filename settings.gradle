@@ -1,0 +1,9 @@
+/**
+ * 프로젝트에 사용하는 모듈 추가 셋팅
+ */
+rootProject.name = 'multi-project'
+include 'api'
+include 'common'
+include 'domain'
+include 'parser'
+

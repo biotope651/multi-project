@@ -1,0 +1,57 @@
+server:
+  port: 7070
+spring:
+  application:
+    name: parser
+  profiles:
+    group:
+      local: local-parser, local-common
+      dev: dev-parser, dev-common
+    active: local
+
+# logging
+# log file full path
+logging:
+  file:
+    name: C:\dev\log\logback-parser.log
+    #name: /apps/logs/doms/api/logback-api.log
+  logback:
+    rollingpolicy:
+      max-file-size: 500MB
+      max-history: 30
+  # log level: default
+  level:
+    root: INFO
+    # log level: package
+    multiproject.parser: DEBUG
+    multiproject.common: DEBUG
+    # spring
+    org.springframework.web: ERROR
+  # log formatter
+  pattern:
+    console: "%-5level %date{yyyy-MM-dd HH:mm:ss.SSSZ,Asia/Seoul} %thread [%logger{36}.%M:%line] %msg%n"
+    file: "%-5level %date{yyyy-MM-dd HH:mm:ss.SSSZ,Asia/Seoul} %thread [%logger{36}.%M:%line] %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local-parser
+
+active:
+  parser:
+    profile:
+      name: this is local setting parser
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev-parser
+
+active:
+  parser:
+    profile:
+      name: this is dev setting parser
